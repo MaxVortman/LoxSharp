@@ -11,7 +11,7 @@ namespace Lox_
         {
             if (args.Length > 1)
             {
-                Console.WriteLine("Usage: lox# [script]");
+                Console.Error.WriteLine("Usage: lox# [script]");
                 Environment.Exit(exitCode: 64);
             }
             else if (args.Length == 1)
