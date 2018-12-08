@@ -3,7 +3,7 @@ using System.Text;
 namespace Lox_
 {
     // Creates an unambiguous, if ugly, string representation of AST nodes.
-    class AstPrinter : Expr.Visitor<string>
+    class AstPrinter : Expr.IVisitor<string>
     {
         internal string Print(Expr expr)
         {
@@ -13,26 +13,25 @@ namespace Lox_
 
         public string VisitBinaryExpr(Expr.Binary expr)
         {
-            return Parenthesize(expr.op.lexeme, expr.left, expr.right);
+            return Parenthesize(expr.Op.Lexeme, expr.Left, expr.Right);
         }
 
         public string VisitGroupingExpr(Expr.Grouping expr)
         {
-            return Parenthesize("group", expr.expression);
+            return Parenthesize("group", expr.Expression);
         }
 
         public string VisitLiteralExpr(Expr.Literal expr)
         {
-            if (expr.value == null) return "nil";
-            return expr.value.toString();
+            return expr.Value == null ? "nil" : expr.Value.ToString();
         }
 
         public string VisitUnaryExpr(Expr.Unary expr)
         {
-            return Parenthesize(expr.op.lexeme, expr.right);
+            return Parenthesize(expr.Op.Lexeme, expr.Right);
         }
 
-        private string Parenthesize(string name, params Expr exprs)
+        private string Parenthesize(string name, params Expr[] exprs)
         {
             var builder = new StringBuilder();
 

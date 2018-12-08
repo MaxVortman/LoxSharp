@@ -5,9 +5,9 @@ namespace Lox_
 {
     class Program
     {
-        private static bool hadError;
+        private static bool _hadError;
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             if (args.Length > 1)
             {
@@ -30,7 +30,7 @@ namespace Lox_
             {
                 Console.Write("> ");
                 Run(Console.ReadLine());
-                hadError = false;
+                _hadError = false;
             }
         }
 
@@ -40,7 +40,7 @@ namespace Lox_
             Run(sourceCode);
 
             // Indicate an error in the exit code.           
-            if (hadError)
+            if (_hadError)
                 Environment.Exit(exitCode: 65);
         }
 
@@ -65,7 +65,7 @@ namespace Lox_
         {
             Console.WriteLine(
                 "[line " + line + "] Error" + where + ": " + message);
-            hadError = true;
+            _hadError = true;
         }
     }
 }

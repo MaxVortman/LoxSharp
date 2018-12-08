@@ -1,8 +1,8 @@
 ﻿namespace Lox_
 {
-    abstract class Expr
+    internal abstract class Expr
     {
-        interface Visitor<T>
+        internal interface IVisitor<out T>
         {
             T VisitBinaryExpr(Binary expr);
             T VisitGroupingExpr(Grouping expr);
@@ -13,65 +13,65 @@
         {
             internal Binary(Expr left, Token op, Expr right)
             {
-                this.left = left;
-                this.op = op;
-                this.right = right;
+                Left = left;
+                Op = op;
+                Right = right;
             }
 
-            internal T Accept(Visitor<T> visitor)
+            internal override T Accept<T>(IVisitor<T> visitor)
             {
                 return visitor.VisitBinaryExpr(this);
             }
 
-            internal readonly Expr left;
-            internal readonly Token op;
-            internal readonly Expr right;
+            internal Expr Left { get; }
+            internal Token Op { get; }
+            internal Expr Right { get; }
         }
         internal class Grouping : Expr
         {
             internal Grouping(Expr expression)
             {
-                this.expression = expression;
+                Expression = expression;
             }
 
-            internal T Accept(Visitor<T> visitor)
+            internal override T Accept<T>(IVisitor<T> visitor)
             {
                 return visitor.VisitGroupingExpr(this);
             }
 
-            internal readonly Expr expression;
+            internal Expr Expression { get; }
         }
         internal class Literal : Expr
         {
-            internal Literal(Object value)
+            internal Literal(object value)
             {
-                this.value = value;
+                Value = value;
             }
 
-            internal T Accept(Visitor<T> visitor)
+            internal override T Accept<T>(IVisitor<T> visitor)
             {
                 return visitor.VisitLiteralExpr(this);
             }
 
-            internal readonly Object value;
+            internal object Value { get; }
         }
         internal class Unary : Expr
         {
             internal Unary(Token op, Expr right)
             {
-                this.op = op;
-                this.right = right;
+                Op = op;
+                Right = right;
             }
 
-            internal T Accept(Visitor<T> visitor)
+            internal override T Accept<T>(IVisitor<T> visitor)
             {
                 return visitor.VisitUnaryExpr(this);
             }
 
-            internal readonly Token op;
-            internal readonly Expr right;
+            internal Token Op { get; }
+            internal Expr Right { get; }
         }
 
-        internal abstract T Accept(Visitor<T> visitor);
+        internal abstract T Accept<T>(IVisitor<T> visitor);
     }
 }

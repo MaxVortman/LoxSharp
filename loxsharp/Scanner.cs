@@ -5,74 +5,74 @@ namespace Lox_
     class Scanner
     {
 
-        private static IDictionary<string, TokenType> keywords = new Dictionary<string, TokenType>{
-            {"and", TokenType.AND},
-            {"class", TokenType.CLASS},
-            {"else", TokenType.ELSE},
-            {"false", TokenType.FALSE},
-            {"for", TokenType.FOR},
-            {"fun", TokenType.FUN},
-            {"if", TokenType.IF},
-            {"nil", TokenType.NIL},
-            {"or", TokenType.OR},
-            {"print", TokenType.PRINT},
-            {"return", TokenType.RETURN},
-            {"super", TokenType.SUPER},
-            {"this", TokenType.THIS},
-            {"true", TokenType.TRUE},
-            {"var", TokenType.VAR},
-            {"while", TokenType.WHILE}
+        private static IDictionary<string, TokenType> _keywords = new Dictionary<string, TokenType>{
+            {"and", TokenType.And},
+            {"class", TokenType.Class},
+            {"else", TokenType.Else},
+            {"false", TokenType.False},
+            {"for", TokenType.For},
+            {"fun", TokenType.Fun},
+            {"if", TokenType.If},
+            {"nil", TokenType.Nil},
+            {"or", TokenType.Or},
+            {"print", TokenType.Print},
+            {"return", TokenType.Return},
+            {"super", TokenType.Super},
+            {"this", TokenType.This},
+            {"true", TokenType.True},
+            {"var", TokenType.Var},
+            {"while", TokenType.While}
         };
 
-        private string source;
-        private List<Token> tokens = new List<Token>();
+        private readonly string _source;
+        private readonly List<Token> _tokens = new List<Token>();
 
-        private int start = 0;
-        private int current = 0;
-        private int line = 1;
+        private int _start = 0;
+        private int _current = 0;
+        private int _line = 1;
 
         internal Scanner(string source)
         {
-            this.source = source;
+            this._source = source;
         }
 
-        internal List<Token> ScanTokens()
+        internal IEnumerable<Token> ScanTokens()
         {
             while (!IsAtEnd())
             {
                 // We are at the beginning of the next lexeme.
-                start = current;
+                _start = _current;
                 ScanToken();
             }
 
-            tokens.Add(new Token(TokenType.EOF, "", null, line));
-            return tokens;
+            _tokens.Add(new Token(TokenType.Eof, "", null, _line));
+            return _tokens;
         }
 
         private bool IsAtEnd()
         {
-            return current >= source.Length;
+            return _current >= _source.Length;
         }
 
         private void ScanToken()
         {
-            char c = Advance();
+            var c = Advance();
             switch (c)
             {
-                case '(': AddToken(TokenType.LEFT_PAREN); break;
-                case ')': AddToken(TokenType.RIGHT_PAREN); break;
-                case '{': AddToken(TokenType.LEFT_BRACE); break;
-                case '}': AddToken(TokenType.RIGHT_BRACE); break;
-                case ',': AddToken(TokenType.COMMA); break;
-                case '.': AddToken(TokenType.DOT); break;
-                case '-': AddToken(TokenType.MINUS); break;
-                case '+': AddToken(TokenType.PLUS); break;
-                case ';': AddToken(TokenType.SEMICOLON); break;
-                case '*': AddToken(TokenType.STAR); break;
-                case '!': AddToken(Match('=') ? TokenType.BANG_EQUAL : TokenType.BANG); break;
-                case '=': AddToken(Match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL); break;
-                case '<': AddToken(Match('=') ? TokenType.LESS_EQUAL : TokenType.LESS); break;
-                case '>': AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER); break;
+                case '(': AddToken(TokenType.LeftParen); break;
+                case ')': AddToken(TokenType.RightParen); break;
+                case '{': AddToken(TokenType.LeftBrace); break;
+                case '}': AddToken(TokenType.RightBrace); break;
+                case ',': AddToken(TokenType.Comma); break;
+                case '.': AddToken(TokenType.Dot); break;
+                case '-': AddToken(TokenType.Minus); break;
+                case '+': AddToken(TokenType.Plus); break;
+                case ';': AddToken(TokenType.Semicolon); break;
+                case '*': AddToken(TokenType.Star); break;
+                case '!': AddToken(Match('=') ? TokenType.BangEqual : TokenType.Bang); break;
+                case '=': AddToken(Match('=') ? TokenType.EqualEqual : TokenType.Equal); break;
+                case '<': AddToken(Match('=') ? TokenType.LessEqual : TokenType.Less); break;
+                case '>': AddToken(Match('=') ? TokenType.GreaterEqual : TokenType.Greater); break;
                 case '/':
                     if (Match('/'))
                     {
@@ -85,13 +85,13 @@ namespace Lox_
                         while ((Peek() != '*' || PeekNext() != '/') && !IsAtEnd())
                         {
                             if (Peek() == '\n')
-                                line++;
+                                _line++;
                             Advance();
                         }
 
                         if (IsAtEnd())
                         {
-                            Program.Error(line, "Unexpected end of file");
+                            Program.Error(_line, "Unexpected end of file");
                         }
                         else
                         {
@@ -101,7 +101,7 @@ namespace Lox_
                     }
                     else
                     {
-                        AddToken(TokenType.SLASH);
+                        AddToken(TokenType.Slash);
                     }
                     break;
 
@@ -112,7 +112,7 @@ namespace Lox_
                     break;
 
                 case '\n':
-                    line++;
+                    _line++;
                     break;
 
                 case '"': String(); break;
@@ -128,7 +128,7 @@ namespace Lox_
                     }
                     else
                     {
-                        Program.Error(line, "Unexpected character.");
+                        Program.Error(_line, "Unexpected character.");
                     }
                     break;
             }
@@ -136,8 +136,8 @@ namespace Lox_
 
         private char Advance()
         {
-            current++;
-            return source[current - 1];
+            _current++;
+            return _source[_current - 1];
         }
 
         private void AddToken(TokenType type)
@@ -147,46 +147,45 @@ namespace Lox_
 
         private void AddToken(TokenType type, object literal)
         {
-            var text = source.Substring(start, current - start);
-            tokens.Add(new Token(type, text, literal, line));
+            var text = _source.Substring(_start, _current - _start);
+            _tokens.Add(new Token(type, text, literal, _line));
         }
 
         private bool Match(char expected)
         {
             if (IsAtEnd()) return false;
-            if (source[current] != expected) return false;
+            if (_source[_current] != expected) return false;
 
-            current++;
+            _current++;
             return true;
         }
 
         private bool MatchNext(char expected)
         {
             if (IsAtEnd()) return false;
-            if (source[current + 1] != expected) return false;
+            if (_source[_current + 1] != expected) return false;
 
-            current++;
+            _current++;
             return true;
         }
 
         private char Peek()
         {
-            if (IsAtEnd()) return '\0';
-            return source[current];
+            return IsAtEnd() ? '\0' : _source[_current];
         }
 
         private void String()
         {
             while (Peek() != '"' && !IsAtEnd())
             {
-                if (Peek() == '\n') line++;
+                if (Peek() == '\n') _line++;
                 Advance();
             }
 
             // Unterminated string.                                 
             if (IsAtEnd())
             {
-                Program.Error(line, "Unterminated string.");
+                Program.Error(_line, "Unterminated string.");
                 return;
             }
 
@@ -194,11 +193,11 @@ namespace Lox_
             Advance();
 
             // Trim the surrounding quotes.                         
-            var value = source.Substring(start + 1, current - 2 - start);
-            AddToken(TokenType.STRING, value);
+            var value = _source.Substring(_start + 1, _current - 2 - _start);
+            AddToken(TokenType.String, value);
         }
 
-        private bool IsDigit(char c)
+        private static bool IsDigit(char c)
         {
             return c >= '0' && c <= '9';
         }
@@ -216,14 +215,13 @@ namespace Lox_
                 while (IsDigit(Peek())) Advance();
             }
 
-            AddToken(TokenType.NUMBER,
-                double.Parse(source.Substring(start, current - start)));
+            AddToken(TokenType.Number,
+                double.Parse(_source.Substring(_start, _current - _start)));
         }
 
         private char PeekNext()
         {
-            if (current + 1 >= source.Length) return '\0';
-            return source[current + 1];
+            return _current + 1 >= _source.Length ? '\0' : _source[_current + 1];
         }
 
         private void Identifier()
@@ -231,19 +229,19 @@ namespace Lox_
             while (IsAlphaNumeric(Peek())) Advance();
 
             // See if the identifier is a reserved word.   
-            var text = source.Substring(start, current - start);
-            if (!keywords.TryGetValue(text, out var type)) type = TokenType.IDENTIFIER;
+            var text = _source.Substring(_start, _current - _start);
+            if (!_keywords.TryGetValue(text, out var type)) type = TokenType.Identifier;
             AddToken(type);
         }
 
-        private bool IsAlpha(char c)
+        private static bool IsAlpha(char c)
         {
             return (c >= 'a' && c <= 'z') ||
                    (c >= 'A' && c <= 'Z') ||
                     c == '_';
         }
 
-        private bool IsAlphaNumeric(char c)
+        private static bool IsAlphaNumeric(char c)
         {
             return IsAlpha(c) || IsDigit(c);
         }
