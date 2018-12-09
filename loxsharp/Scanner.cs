@@ -6,7 +6,7 @@ namespace Lox_
     class Scanner
     {
 
-        private static IDictionary<string, TokenType> _keywords = new Dictionary<string, TokenType>{
+        private static readonly IDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>{
             {"and", And},
             {"class", Class},
             {"else", Else},
@@ -37,7 +37,7 @@ namespace Lox_
             _source = source;
         }
 
-        internal IEnumerable<Token> ScanTokens()
+        internal IReadOnlyList<Token> ScanTokens()
         {
             while (!IsAtEnd())
             {
@@ -231,7 +231,7 @@ namespace Lox_
 
             // See if the identifier is a reserved word.   
             var text = _source.Substring(_start, _current - _start);
-            if (!_keywords.TryGetValue(text, out var type)) type = TokenType.Identifier;
+            if (!Keywords.TryGetValue(text, out var type)) type = TokenType.Identifier;
             AddToken(type);
         }
 

@@ -49,16 +49,26 @@ namespace Lox_
             var scanner = new Scanner(sourceCode);
             var tokens = scanner.ScanTokens();
 
-            // For now, just print the tokens.        
-            foreach (var token in tokens)
-            {
-                Console.WriteLine(token);
-            }
+            var parser = new Parser(tokens);                    
+            var expression = parser.Parse();
+
+            // Stop if there was a syntax error.                   
+            if (_hadError) return;                                  
+
+            Console.WriteLine(new AstPrinter().Print(expression));
         }
 
         internal static void Error(int line, string message)
         {
             Report(line, "", message);
+        }
+        
+        internal static void Error(Token token, string message) {              
+            if (token.Type == TokenType.Eof) {                          
+                Report(token.Line, " at end", message);                   
+            } else {                                                    
+                Report(token.Line, " at '" + token.Lexeme + "'", message);
+            }                                                           
         }
 
         private static void Report(int line, string where, string message)
